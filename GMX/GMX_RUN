@@ -1,0 +1,25 @@
+#!/bin/bash 
+
+X=0
+
+while [[ $X -lt 5 ]]; do
+
+echo "#!/bin/bash" >> fep_${X}.run
+echo "" >> fep_${X}.run
+echo "#SBATCH -A DCCADD" >> fep_${X}.run
+echo "#SBATCH --ntasks=4" >> fep_${X}.run
+echo "#SBATCH -c 4" >> fep_${X}.run
+echo ""	 >> fep_${X}.run
+echo ""	 >> fep_${X}.run
+echo ""	 >> fep_${X}.run
+echo "module load GROMACS" >> fep_${X}.run
+echo "csh fep_window_${X}.sh" >> fep_${X}.run
+echo ""  >> fep_${X}.run
+echo ""  >> fep_${X}.run
+sbatch fep_${X}.run
+
+X=$(($X+1))
+
+done
+
+

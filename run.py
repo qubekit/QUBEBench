@@ -8,9 +8,9 @@ from liquid.openmm_pure_liquids import liquid_analysis
 
 from liquid_prep import create_box, generate_connections
 
-from decorators import exception_catcher
-from helpers import generate_bulk_csv, mol_data_from_csv
 from properties import calculate_properties
+from utils.decorators import exception_catcher
+from utils.helpers import generate_bulk_csv, mol_data_from_csv
 
 import csv
 import os
