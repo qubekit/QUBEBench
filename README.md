@@ -1,2 +1,2 @@
 # QUBEBench
-GPU code analysing QUBEKit-generated molecules
+GPU code for analysing liquid properties of QUBEKit-generated molecules

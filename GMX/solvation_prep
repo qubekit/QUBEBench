@@ -1,0 +1,30 @@
+#!/bin/bash
+
+mkdir charges
+mkdir vdw
+
+cp  $GMX/GMX* .
+cp $GMX/remove_charges.py .
+#cp ../scripts/swap.py .
+sed -i 's/UNK/'$1'/g' GMXtools_C.py
+sed -i 's/UNK/'$1'/g' GMXtools_V.py
+sed -i 's/UNK/'$1'/g' GMXmdp.py
+#sed -i 's/298.15 298.15/'$2' '$2'/g' GMXmdp.py
+#sed -i 's/298.15/'$2'/g' GMXmdp.py
+
+cp $1.* charges/
+cp GMXtools_C.py charges/
+#python swap.py $1
+#sed -i  's/gpu_id 0/gpu_id '$2'/g' GMXmdp.py
+cp GMXmdp.py charges/
+cd charges
+python GMXtools_C.py
+cd ../
+python remove_charges.py $1
+cp $1.gro vdw/
+cp new.itp vdw/$1.itp
+cp GMXtools_V.py vdw/
+cp GMXmdp.py vdw/
+cd vdw/
+python GMXtools_V.py
+cd ../
