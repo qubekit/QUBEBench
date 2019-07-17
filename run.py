@@ -101,19 +101,23 @@ class ArgsAndConfigs:
             for root, dirs, files in os.walk('.', topdown=True):
                 for di in dirs:
                     if f'QUBEKit_{name}_' in di:
-                        os.chdir(os.path.join(root, di, '11_finalise'))
-                        mol_home = os.getcwd()
+                        try:
+                            os.chdir(os.path.join(root, di, '11_finalise'))
+                            mol_home = os.getcwd()
 
-                        self.molecule = Molecule()
-                        self.molecule.bulk_run = True
-                        self.molecule.name = name
-                        self.molecule.home = mol_home
-                        self.molecule.csv_path = os.path.join(bulk_home, 'results.csv')
+                            self.molecule = Molecule()
+                            self.molecule.bulk_run = True
+                            self.molecule.name = name
+                            self.molecule.home = mol_home
+                            self.molecule.csv_path = os.path.join(bulk_home, 'results.csv')
 
-                        for key, val in bulk_data[name].items():
-                            setattr(self.molecule, key, val)
+                            for key, val in bulk_data[name].items():
+                                setattr(self.molecule, key, val)
 
-                        Execute(self.molecule)
+                            Execute(self.molecule)
+
+                        except Exception:
+                            continue
                         os.chdir(bulk_home)
 
         sys.exit()
