@@ -95,11 +95,12 @@ class ArgsAndConfigs:
         bulk_data = mol_data_from_csv(self.args.bulk_run)
         bulk_home = os.getcwd()
 
-        self.start_results_file(os.path.join(bulk_home, 'results.csv'))
+        if 'results.csv' not in os.listdir(bulk_home):
+            self.start_results_file(os.path.join(bulk_home, 'results.csv'))
 
-        for name in list(bulk_data):
-            for root, dirs, files in os.walk('.', topdown=True):
-                for di in dirs:
+        for root, dirs, files in os.walk('.', topdown=True):
+            for di in dirs:
+                for name in list(bulk_data):
                     if f'QUBEKit_{name}_' in di:
                         try:
                             os.chdir(os.path.join(root, di, '11_finalise'))
@@ -116,7 +117,8 @@ class ArgsAndConfigs:
 
                             Execute(self.molecule)
 
-                        except Exception:
+                        except Exception as exc:
+                            print(str(exc))
                             continue
                         os.chdir(bulk_home)
 
