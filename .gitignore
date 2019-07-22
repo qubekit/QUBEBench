@@ -1,0 +1,11 @@
+build
+dist
+qubebench.egg-info
+.pytest_cache
+.idea
+*.pdb
+*.mol
+*.z
+*.csv
+*.dat
+*.xml

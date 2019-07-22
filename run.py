@@ -98,7 +98,7 @@ class ArgsAndConfigs:
         if 'results.csv' not in os.listdir(bulk_home):
             self.start_results_file(os.path.join(bulk_home, 'results.csv'))
 
-        for root, dirs, files in os.walk('.', topdown=True):
+        for root, dirs, files in os.walk(bulk_home, topdown=True):
             for di in dirs:
                 for name in list(bulk_data):
                     if f'QUBEKit_{name}_' in di:
@@ -118,6 +118,10 @@ class ArgsAndConfigs:
                             Execute(self.molecule)
 
                         except Exception as exc:
+
+                            with open('errors.txt', 'a+') as error_file:
+                                error_file.write(f'{name}\n\n{exc}\n\n')
+
                             print(str(exc))
                             continue
                         os.chdir(bulk_home)
@@ -146,7 +150,11 @@ class Execute:
         This is run from inside the finalise folder so all info is present in the pdb or xml files.
         """
 
-        name = [file[:-4] for file in os.listdir(self.molecule.home) if file.endswith('.pdb')][0]
+        # Get name from root folder
+        with open('../QUBEKit_log.txt', 'r') as log_file:
+            for line in log_file:
+                if 'Analysing: ' in line:
+                    name = line.split()[1]
         heavy_atoms = 0
 
         with open(f'{name}.xml', 'r') as xml:
