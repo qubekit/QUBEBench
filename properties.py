@@ -2,14 +2,13 @@ import pandas as pd
 import csv
 
 
-def calculate_properties(csv_path, name, nmol, liq=True, gas=True):
+def calculate_properties(csv_path, name, nmol, num_atoms, liq=True, gas=True):
     """
     Script to calculate the liquid properties of an OpenMM simulation.
     Both liquid and gas results files are needed.
     """
     desired_temp = 298.15
     gas_const = 0.0019858775  # Should not be changed
-    num_atoms = 12  # Number of atoms per molecule for heat of vap calculation
 
     # The next section calculates the amount of results used in the calculation based on simulation time
     # It will exclude the first nanosecond of data for both simulations based on the time step used

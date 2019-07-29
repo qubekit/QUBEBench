@@ -119,7 +119,7 @@ class ArgsAndConfigs:
 
                         except Exception as exc:
 
-                            with open('errors.txt', 'a+') as error_file:
+                            with open(os.path.join(bulk_home, 'errors.txt'), 'a+') as error_file:
                                 error_file.write(f'{name}\n\n{exc}\n\n')
 
                             print(str(exc))
@@ -141,7 +141,7 @@ class Execute:
     def __init__(self, molecule):
 
         self.molecule = molecule
-        self.molecule.name, self.molecule.switch_dist = self.mol_data()
+        self.molecule.name, self.molecule.switch_dist, self.total_atoms = self.mol_data()
         self.single_analysis()
 
     def mol_data(self):
@@ -155,13 +155,18 @@ class Execute:
             for line in log_file:
                 if 'Analysing: ' in line:
                     name = line.split()[1]
+
         heavy_atoms = 0
+        hydrogens = 0
 
         with open(f'{name}.xml', 'r') as xml:
             for line in xml:
                 if '<Type' in line:
                     if line.split('element')[1][2] != 'H':
                         heavy_atoms += 1
+                    else:
+                        hydrogens += 1
+        total_atoms = heavy_atoms + hydrogens
 
         if heavy_atoms < 3:
             switch_dist = 1.05
@@ -170,7 +175,7 @@ class Execute:
         else:
             switch_dist = 1.45
 
-        return name, switch_dist
+        return name, switch_dist, total_atoms
 
     @exception_catcher
     def single_analysis(self):
@@ -209,7 +214,7 @@ class Execute:
 
             os.chdir('../')
 
-        calculate_properties(self.molecule.csv_path, self.molecule.name, self.molecule.nmol)
+        calculate_properties(self.molecule.csv_path, self.molecule.name, self.molecule.nmol, self.total_atoms)
 
 
 def main():
