@@ -24,7 +24,7 @@ mpirun -np %d gmx_mpi mdrun -v -deffnm npt_prod_0
 echo 'DONE WITH THE JOB'
 echo `date` 
 '''%(np,np,np,np,np,np,np,np,np)
-    ofile.write(jobscript.replace('_0','_%d'%window))
+    ofile.write(jobscript.replace('_0', '_%d' % window))
     ofile.close()
     return None
 
@@ -47,7 +47,7 @@ gmx mdrun -nt 4  -v -deffnm npt_prod_0
 echo 'DONE WITH THE JOB'
 echo `date` 
 '''
-    ofile.write(jobscript.replace('_0','_%d'%window))
+    ofile.write(jobscript.replace('_0', '_%d' % window))
     ofile.close()
     return None
 
@@ -71,12 +71,12 @@ def create_top(resname):
     return None
 
 
-def setup_BOX(resname):
+def setup_box(resname):
     from distutils import spawn 
     try: 
-       GMX = spawn.find_executable('gmx')
+        GMX = spawn.find_executable('gmx')
     except:
-       print('GROMACS executable not found')
+        print('GROMACS executable not found')
     solvate_commands = [
         '%s editconf -f %s.gro -o box_%s.gro -c -d 1.5 -bt cubic' % (
             GMX, resname, resname),
