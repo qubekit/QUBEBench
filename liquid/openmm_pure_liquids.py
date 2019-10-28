@@ -63,7 +63,8 @@ def liquid_analysis(mol_name, switch_dist=1.25, temp=298.15):
 
     print('MINIMISATION DONE')
     simulation.reporters.append(app.DCDReporter('output.dcd', 1000))
-    simulation.reporters.append(app.StateDataReporter('liquid.txt', 1000, step=True, potentialEnergy=True, temperature=True, density=True))
+    simulation.reporters.append(app.StateDataReporter(
+        'liquid.txt', 1000, step=True, potentialEnergy=True, temperature=True, density=True))
     simulation.step(3000000)
     np_equ_pos = simulation.context.getState(getPositions=True).getPositions()
     app.PDBFile.writeFile(simulation.topology, np_equ_pos, open('NPT_EQ_FINAL.pdb', 'w'))

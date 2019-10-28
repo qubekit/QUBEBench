@@ -1,12 +1,11 @@
 from simtk.openmm.app import *
 from simtk.openmm import *
-from simtk.unit import *
-from sys import stdout
-#from dcdreporter import DCDReporter
-import numpy as np
+from simtk import unit
+
+from math import sqrt
 
 
-def OPLS_LJ(system):
+def opls_lj(system):
     forces = {system.getForce(index).__class__.__name__: system.getForce(
         index) for index in range(system.getNumForces())}
     nonbonded_force = forces['NonbondedForce']
@@ -17,9 +16,9 @@ def OPLS_LJ(system):
     lorentz.addPerParticleParameter('epsilon')
     lorentz.setCutoffDistance(nonbonded_force.getCutoffDistance())
     lorentz.setUseSwitchingFunction(True)
-    lorentz.setSwitchingDistance(1.45 * nanometer)
+    lorentz.setSwitchingDistance(1.45 * unit.nanometer)
     lorentz.setUseLongRangeCorrection(True)
-    #lorentz.setUseDispersionCorrection(True)
+    # lorentz.setUseDispersionCorrection(True)
     system.addForce(lorentz)
     LJset = {}
     for index in range(nonbonded_force.getNumParticles()):
@@ -40,24 +39,25 @@ def OPLS_LJ(system):
             nonbonded_force.setExceptionParameters(i, p1, p2, q, sig14, eps)
     return system
 
+
 pdb = PDBFile('NewBox_PYR.pdb')
 modeller = Modeller(pdb.topology, pdb.positions)
 forcefield = ForceField('PYR.xml')
 modeller.addExtraParticles(forcefield)
 PDBFile.writeFile(modeller.topology, modeller.positions, open('PYR_modeller.pdb', 'w'))
 system = forcefield.createSystem(
-    modeller.topology, nonbondedMethod=PME, ewaldErrorTolerance=0.0005, nonbondedCutoff=1.5 * nanometer)
-system = OPLS_LJ(system)
+    modeller.topology, nonbondedMethod=PME, ewaldErrorTolerance=0.0005, nonbondedCutoff=1.5 * unit.nanometer)
+system = opls_lj(system)
 # FOR NPT
-TEMP = 298.15 * kelvin
-system.addForce(MonteCarloBarostat(1 * bar, TEMP))
-integrator = LangevinIntegrator(TEMP, 1 / picosecond, 0.001 * picoseconds)
+TEMP = 298.15 * unit.kelvin
+system.addForce(MonteCarloBarostat(1 * unit.bar, TEMP))
+integrator = LangevinIntegrator(TEMP, 1 / unit.picosecond, 0.001 * unit.picoseconds)
 simulation = Simulation(modeller.topology, system, integrator)
 simulation.context.setPositions(modeller.positions)
-#simulation.context.computeVirtualSites()
+# simulation.context.computeVirtualSites()
 print('MINIMIZATION STARTED')
 simulation.minimizeEnergy()
-#print('Energy at Minima is %3.3f kcal/mol' % (energy._value * KcalPerKJ))
+# print('Energy at Minima is %3.3f kcal/mol' % (energy._value * KcalPerKJ))
 print('MINIMIZATION DONE')
 simulation.reporters.append(PDBReporter('output.pdb', 1000))
 simulation.reporters.append(StateDataReporter('liquid.txt', 1000, step=True, potentialEnergy=True, temperature=True, density=True))
