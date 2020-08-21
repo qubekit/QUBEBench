@@ -210,7 +210,7 @@ class Execute:
 
         if self.molecule.forcebalance:
             os.system(f'cp box.pdb ../../targets/{self.molecule.name}_liquid/liquid.pdb')
-            os.system(f'cp {self.molecule.name} ../../targets/{self.molecule.name}_liquid/gas.pdb')
+            os.system(f'cp {self.molecule.name}.pdb ../../targets/{self.molecule.name}_liquid/gas.pdb')
 
             write_fb_csv(f'../../targets/{self.molecule.name}_liquid/')
             return
