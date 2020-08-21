@@ -68,6 +68,10 @@ class ArgsAndConfigs:
     @staticmethod
     def parse_commands():
 
+        def string_to_bool(string):
+            """Convert a string to a bool for argparse use when casting to bool"""
+            return string.casefold() in ['true', 't', 'yes', 'y']
+
         class CSVAction(argparse.Action):
             """The csv creation class run when the csv option is used."""
 
@@ -83,7 +87,7 @@ class ArgsAndConfigs:
         parser.add_argument('-t', '--temp', type=float)
         parser.add_argument('-n', '--nmol', type=int)
         parser.add_argument('-a', '--analyse', type=str, choices=['both', 'liquid', 'gas'])
-        parser.add_argument('-fb', '--forcebalance', type=bool)
+        parser.add_argument('-fb', '--forcebalance', type=string_to_bool, choices=[True, False])
 
         groups = parser.add_mutually_exclusive_group()
 
@@ -125,7 +129,7 @@ class ArgsAndConfigs:
                                 setattr(self.molecule, key, val)
 
                             if self.args.forcebalance:
-                                os.mkdir(os.path.join(bulk_home, 'targets', self.molecule.name))
+                                os.mkdir(os.path.join(bulk_home, 'targets', f'{self.molecule.name}_liquid'))
 
                             Execute(self.molecule)
 
@@ -201,10 +205,10 @@ class Execute:
         generate_connections(f'{self.molecule.name}.pdb', 'box.pdb', self.molecule.nmol)
 
         if self.molecule.forcebalance:
-            os.system(f'cp box.pdb ../../targets/{self.molecule.name}/liquid.pdb')
-            os.system(f'cp {self.molecule.name} ../../targets/{self.molecule.name}/gas.pdb')
+            os.system(f'cp box.pdb ../../targets/{self.molecule.name}_liquid/liquid.pdb')
+            os.system(f'cp {self.molecule.name} ../../targets/{self.molecule.name}_liquid/gas.pdb')
 
-            write_fb_csv(f'../../targets/{self.molecule.name}')
+            write_fb_csv(f'../../targets/{self.molecule.name}_liquid/')
             return
 
         if self.molecule.analyse == 'both' or self.molecule.analyse == 'liquid':
