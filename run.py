@@ -129,7 +129,11 @@ class ArgsAndConfigs:
                                 setattr(self.molecule, key, val)
 
                             if self.args.forcebalance:
-                                os.mkdir(os.path.join(bulk_home, 'targets', f'{self.molecule.name}_liquid'))
+                                self.molecule.forcebalance = True
+                                try:
+                                    os.mkdir(os.path.join(bulk_home, 'targets', f'{self.molecule.name}_liquid'))
+                                except FileExistsError:
+                                    pass
 
                             Execute(self.molecule)
 
