@@ -1,17 +1,33 @@
 import networkx as nx
 import os
 
+from simtk.openmm import app
 
-def create_box(pdb_name, nmol=267):
 
-    x = y = z = 4       # Liquid box dimensions
+def nmols_in_file(box_file):
+    """return how many molecules are in the pdb file."""
+    pdb = app.PDBFile(box_file)
+    n_molecules = pdb.topology.getNumResidues()
+
+    return n_molecules
+
+
+def create_box(pdb_name, nmol=500):
+
     resn = 'MOL'        # Enter new molecule description code to rename UNK
 
     with open(pdb_name, 'rt') as f_in, open(f'{resn}.pdb', 'wt') as f_out:
         for line in f_in:
             f_out.write(line.replace('UNK', resn))
 
-    os.system(f'gmx insert-molecules -ci  {resn}.pdb -box {x} {y} {z}  -nmol {nmol} -o box.pdb')
+    x = y = z = 4       # Initial liquid box dimensions
+    n_molecules = 0
+    while n_molecules < nmol:
+        os.system(f'gmx insert-molecules -ci  {resn}.pdb -box {x} {y} {z} -nmol {nmol} -o box.pdb')
+        n_molecules = nmols_in_file('box.pdb')
+        x += 0.2
+        y += 0.2
+        z += 0.2
 
 
 def generate_connections(single_pdb, all_pdb, n_molecules):

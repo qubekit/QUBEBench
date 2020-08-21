@@ -8,15 +8,15 @@ from liquid.openmm_pure_liquids import liquid_analysis
 
 from liquid_prep import create_box, generate_connections
 
+from forcebalance import write_fb_csv
 from properties import calculate_properties
 from utils.decorators import exception_catcher
-from utils.helpers import generate_bulk_csv, mol_data_from_csv
+from utils.helpers import generate_bulk_csv, make_and_change_into, mol_data_from_csv
 
+import argparse
 import csv
 import os
 import sys
-
-import argparse
 
 
 class Molecule:
@@ -30,11 +30,12 @@ class Molecule:
         self.name = None
         self.home = None
         self.temp = 298.15
-        self.nmol = 267
+        self.nmol = 500
         self.switch_dist = None
         self.analyse = 'both'
         self.csv_path = None
         self.bulk_run = False
+        self.forcebalance = False
 
 
 class ArgsAndConfigs:
@@ -82,6 +83,7 @@ class ArgsAndConfigs:
         parser.add_argument('-t', '--temp', type=float)
         parser.add_argument('-n', '--nmol', type=int)
         parser.add_argument('-a', '--analyse', type=str, choices=['both', 'liquid', 'gas'])
+        parser.add_argument('-fb', '--forcebalance', type=bool)
 
         groups = parser.add_mutually_exclusive_group()
 
@@ -94,6 +96,13 @@ class ArgsAndConfigs:
 
         bulk_data = mol_data_from_csv(self.args.bulk_run)
         bulk_home = os.getcwd()
+
+        if self.args.forcebalance:
+            try:
+                os.mkdir('targets')
+                os.mkdir('forcefield')
+            except FileExistsError:
+                pass
 
         if 'results.csv' not in os.listdir(bulk_home):
             self.start_results_file(os.path.join(bulk_home, 'results.csv'))
@@ -114,6 +123,9 @@ class ArgsAndConfigs:
 
                             for key, val in bulk_data[name].items():
                                 setattr(self.molecule, key, val)
+
+                            if self.args.forcebalance:
+                                os.mkdir(os.path.join(bulk_home, 'targets', self.molecule.name))
 
                             Execute(self.molecule)
 
@@ -188,13 +200,12 @@ class Execute:
 
         generate_connections(f'{self.molecule.name}.pdb', 'box.pdb', self.molecule.nmol)
 
-        def make_and_change_into(name):
-            try:
-                os.mkdir(name)
-            except FileExistsError:
-                pass
-            finally:
-                os.chdir(name)
+        if self.molecule.forcebalance:
+            os.system(f'cp box.pdb ../../targets/{self.molecule.name}/liquid.pdb')
+            os.system(f'cp {self.molecule.name} ../../targets/{self.molecule.name}/gas.pdb')
+
+            write_fb_csv(f'../../targets/{self.molecule.name}')
+            return
 
         if self.molecule.analyse == 'both' or self.molecule.analyse == 'liquid':
 

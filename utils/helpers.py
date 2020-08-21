@@ -45,7 +45,7 @@ def mol_data_from_csv(csv_name):
 
             row = dict(row)
             row['temp'] = float(row['temp']) if row['temp'] else 298.15
-            row['nmol'] = int(row['nmol']) if row['nmol'] else 267
+            row['nmol'] = int(row['nmol']) if row['nmol'] else 500
             row['analyse'] = row['analyse'] if row['analyse'] else 'both'
             rows.append(row)
 
@@ -55,3 +55,12 @@ def mol_data_from_csv(csv_name):
         del val['name']
 
     return final
+
+
+def make_and_change_into(name):
+    try:
+        os.mkdir(name)
+    except FileExistsError:
+        pass
+    finally:
+        os.chdir(name)
