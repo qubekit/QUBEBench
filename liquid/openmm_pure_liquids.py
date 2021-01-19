@@ -44,9 +44,23 @@ def liquid_analysis(mol_name, switch_dist=1.25, temp=298.15):
 
     pdb = app.PDBFile('new.pdb')
     modeller = app.Modeller(pdb.topology, pdb.positions)
-    forcefield = app.ForceField(mol_name + '.xml')
-    system = forcefield.createSystem(modeller.topology, nonbondedMethod=app.PME, ewaldErrorTolerance=0.0005,
-                                     nonbondedCutoff=(switch_dist + 0.05) * unit.nanometer)
+    forcefield = app.ForceField(f'{mol_name}.xml')
+    try:
+        system = forcefield.createSystem(
+            modeller.topology,
+            nonbondedMethod=app.PME,
+            ewaldErrorTolerance=0.0005,
+            nonbondedCutoff=(switch_dist + 0.05) * unit.nanometer
+        )
+    except ValueError:
+        modeller.addExtraParticles(forcefield)
+        system = forcefield.createSystem(
+            modeller.topology,
+            nonbondedMethod=app.PME,
+            ewaldErrorTolerance=0.0005,
+            nonbondedCutoff=(switch_dist + 0.05) * unit.nanometer
+        )
+
     system = opls_lj(system, switch_dist)
     # FOR NPT
     temp *= unit.kelvin

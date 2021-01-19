@@ -53,7 +53,20 @@ def gas_analysis(mol_name, temp=298.15):
     modeller = app.Modeller(pdb.topology, pdb.positions)
     forcefield = app.ForceField(mol_name + '.xml')
 
-    system = forcefield.createSystem(modeller.topology, nonbondedMethod=app.NoCutoff,  constraints=None)
+    try:
+        system = forcefield.createSystem(
+            modeller.topology,
+            nonbondedMethod=app.NoCutoff,
+            constraints=None
+        )
+    except ValueError:
+        modeller.addExtraParticles(forcefield)
+        system = forcefield.createSystem(
+            modeller.topology,
+            nonbondedMethod=app.NoCutoff,
+            constraints=None
+        )
+
     system = opls_lj(system)
     integrator = mm.LangevinIntegrator(temp, 5 / unit.picosecond,  0.0005 * unit.picosecond)
     simulation = app.Simulation(modeller.topology, system, integrator)

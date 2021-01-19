@@ -181,7 +181,8 @@ class Execute:
 
         with open(f'{name}.xml', 'r') as xml:
             for line in xml:
-                if '<Type' in line:
+                # Find atom elements, ignore v-sites
+                if ('<Type' in line) and ('v-site' not in line):
                     if line.split('element')[1][2] != 'H':
                         heavy_atoms += 1
                     else:
