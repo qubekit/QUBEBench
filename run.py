@@ -1,5 +1,5 @@
 """
-Should be run from either inside an 11_finalise folder (single execution)
+Should be run from either inside an 10_finalise/11_finalise folder (single execution)
 or from inside a folder containing many QUBEKit_name folders (bulk execution).
 """
 
@@ -117,8 +117,10 @@ class ArgsAndConfigs:
                     if f'QUBEKit_{name}_' in di:
                         try:
                             os.chdir(os.path.join(root, di, '11_finalise'))
-                            mol_home = os.getcwd()
-
+                        except FileNotFoundError:
+                            os.chdir(os.path.join(root, di, '10_finalise'))
+                        mol_home = os.getcwd()
+                        try:
                             self.molecule = Molecule()
                             self.molecule.bulk_run = True
                             self.molecule.name = name
@@ -170,11 +172,7 @@ class Execute:
         This is run from inside the finalise folder so all info is present in the pdb or xml files.
         """
 
-        # Get name from root folder
-        with open('../QUBEKit_log.txt', 'r') as log_file:
-            for line in log_file:
-                if 'Analysing: ' in line:
-                    name = line.split()[1]
+        name = [each for each in os.listdir('.') if each.endswith('.xml')][0].split('.')[0]
 
         heavy_atoms = 0
         hydrogens = 0
