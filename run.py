@@ -169,7 +169,7 @@ class Execute:
         This is run from inside the finalise folder so all info is present in the pdb or xml files.
         """
 
-        name = [each for each in os.listdir('.') if each.endswith('.xml')][0].split('.')[0]
+        name = [file for file in os.listdir('.') if file.endswith('.xml')][0].split('.')[0]
 
         heavy_atoms = 0
         hydrogens = 0
