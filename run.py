@@ -115,10 +115,7 @@ class ArgsAndConfigs:
             for di in dirs:
                 for name in list(bulk_data):
                     if f'QUBEKit_{name}_' in di:
-                        try:
-                            os.chdir(os.path.join(root, di, '11_finalise'))
-                        except FileNotFoundError:
-                            os.chdir(os.path.join(root, di, '10_finalise'))
+                        os.chdir(os.path.join(root, di, 'final_parameters'))
                         mol_home = os.getcwd()
                         try:
                             self.molecule = Molecule()

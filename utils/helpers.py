@@ -1,29 +1,30 @@
 import csv
+import json
 import os
 
 
 def generate_bulk_csv(csv_name):
-
-    log_files = []
+    """Find results jsons for each execution and add the appropriate data for a qubebench run."""
+    workflows = []
     for root, dirs, files in os.walk('.', topdown=True):
         for file in files:
-            if 'QUBEKit_log.txt' in file and 'backups' not in root:
-                log_files.append(os.path.abspath(f'{root}/{file}'))
+            if 'workflow_result.json' in file and 'backups' not in root:
+                workflows.append(os.path.join(root, file))
 
-    if not log_files:
-        print('No QUBEKit directories with log files found. Perhaps you need to move to the parent directory.')
-        return
+    if not workflows:
+        raise FileNotFoundError(
+            'No QUBEKit directories with completed workflow files found. '
+            'Perhaps you need to move to the parent directory, '
+            'or the QUBEKit executions were unsuccessful.'
+        )
 
     names = []
-    for file in log_files:
-        with open(file) as log_file:
-            for line in log_file:
-                if 'Analysing:' in line:
-                    names.append(line.split()[1])
-                    break
+    for file in workflows:
+        with open(file) as results_file:
+            results_json = json.load(results_file)
+            names.append(results_json['input_molecule']['name'])
 
     with open(csv_name, 'w') as csv_file:
-
         file_writer = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         file_writer.writerow(['name', 'temp', 'nmol', 'analyse'])
 
@@ -31,7 +32,6 @@ def generate_bulk_csv(csv_name):
             file_writer.writerow([name, '', '', ''])
 
     print(f'{csv_name} generated.', flush=True)
-    return
 
 
 def mol_data_from_csv(csv_name):
