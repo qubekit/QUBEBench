@@ -111,6 +111,7 @@ class ArgsAndConfigs:
         if 'results.csv' not in os.listdir(bulk_home):
             self.start_results_file(os.path.join(bulk_home, 'results.csv'))
 
+        # TODO Flip loops to preserve order
         for root, dirs, files in os.walk(bulk_home, topdown=True):
             for di in dirs:
                 for name in list(bulk_data):
@@ -205,7 +206,7 @@ class Execute:
         generate_connections(f'{self.molecule.name}.pdb', 'box.pdb', self.molecule.nmol)
 
         if self.molecule.forcebalance:
-            os.system(f'cp box.pdb ../../targets/{self.molecule.name}_liquid/liquid.pdb')
+            os.system(f'cp new.pdb ../../targets/{self.molecule.name}_liquid/liquid.pdb')
             os.system(f'cp {self.molecule.name}.pdb ../../targets/{self.molecule.name}_liquid/gas.pdb')
 
             write_fb_csv(f'../../targets/{self.molecule.name}_liquid/')
